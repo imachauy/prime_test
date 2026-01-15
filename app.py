@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 # gradio_app.pyのASGIアプリをインポート！
 from gradio import mount_gradio_app
-from gradio_app import demo
+from gradio_app_dashboard import demo
 
 #general
 import os
@@ -42,7 +42,7 @@ app.add_middleware(SessionMiddleware, secret_key=os.environ.get('FASTAPI_SECRET_
 @app.on_event("startup")
 def startup_event():
     print("[46] Server startup: Initializing database")
-    app.mount("/mathgen/static", StaticFiles(directory="static"), name="static")
+    app.mount("/prime_dashboard/static", StaticFiles(directory="static"), name="static")
 
 def get_browser_language(request: Request):
     try:
@@ -66,7 +66,7 @@ def get_browser_language(request: Request):
 # Set up Jinja2 templates
 templates = Jinja2Templates(directory="templates")
 
-LTI_URL = os.getenv("LTI_URL", "https://dev.let.media.kyoto-u.ac.jp/mathgen/lti/login")
+LTI_URL = os.getenv("LTI_URL", "https://dev.let.media.kyoto-u.ac.jp/prime_dashboard/lti/login")
 
 css = """
 h1 {
@@ -163,16 +163,16 @@ async def startup_event():
     print("[162] Server startup: Initializing HTML clients")
 
     # Fetch URLs from environment variables
-    mathgen_url = os.getenv("MATHGEN_URL", "http://fastapi-app:7860")
+    prime_dashboard_url = os.getenv("PRIME_DASHBOARD_URL", "http://fastapi-app:7861")
 
-    app.state.mathgen_client = await get_httpx_client(mathgen_url)
+    app.state.prime_dashboard_client = await get_httpx_client(prime_dashboard_url)
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     print("[172] Server shutdown: Closing HTTP clients")
-    await app.state.mathgen_saikyo_client.aclose()
-    await app.state.mathgen_dcat_client.aclose()
+    await app.state.prime_dashboard_saikyo_client.aclose()
+    await app.state.prime_dashboard_dcat_client.aclose()
 
 
 # Log incoming requests
@@ -215,13 +215,13 @@ async def proxy_request(client, request: Request, path: str):
     print(f"[214] Max retries reached for proxying request to {url}")
     raise HTTPException(status_code=502, detail="Max retries reached")
 
-@app.api_route("/mathgen/{path:path}") # legacy path
-async def proxy_to_mathgen(request: Request, path: str, user: dict = Depends(get_current_user)):
-    return await proxy_request(app.state.mathgen_client, request, path)
+@app.api_route("/prime_dashboard/{path:path}") # legacy path
+async def proxy_to_prime_dashboard(request: Request, path: str, user: dict = Depends(get_current_user)):
+    return await proxy_request(app.state.prime_dashboard_client, request, path)
 
 ####### LTI #############################################################################
 
-@app.post('/mathgen/lti/login') #/mathgen/lti/login に「POST」でアクセスされた時だけ、この関数が呼ばれます。
+@app.post('/prime_dashboard/lti/login') #/prime_dashboard/lti/login に「POST」でアクセスされた時だけ、この関数が呼ばれます。
 async def lti_launch(request: Request):
     print(f"[225] Validating LTI request. Request headers: {dict(request.headers)}")
     valid = await validate_lti_request(request) #ltiリクエストをpostする
@@ -259,19 +259,19 @@ async def lti_launch(request: Request):
         request.session['user'] = user_info
 
 
-        return RedirectResponse(url='/mathgen/ui/', status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(url='/prime_dashboard/ui/', status_code=status.HTTP_303_SEE_OTHER)
     
     print("[292] User ID missing in LTI request")
     return {'error': 'User ID missing in LTI request'}
 
 @router.get("/go-to-gradio")
 async def go_to_gradio():
-    return RedirectResponse(url="/mathgen/ui/")
+    return RedirectResponse(url="/prime_dashboard/ui/")
 
-app.include_router(router, prefix="/mathgen")
+app.include_router(router, prefix="/prime_dashboard")
 
 # Gradio Mount（/ui以下はGradio専用にする！）
 mount_gradio_app(app, demo, path="/ui/", root_path="/ui")
 
 if __name__ == '__main__':
-    uvicorn.run(app, root_path="/mathgen")
+    uvicorn.run(app, root_path="/prime_dashboard")

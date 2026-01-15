@@ -20,7 +20,7 @@ services:
       context: .
     container_name: fastapi-app
     ports:
-      - "13861:7861"
+      - "13861:7860"
     env_file:
       - .env
     depends_on:
