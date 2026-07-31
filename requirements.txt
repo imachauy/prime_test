@@ -1,13 +1,13 @@
 gradio==5.23.1
 gradio_client==1.8.0
 numpy==1.26.4
-openai==1.35.7
+openai==2.15.0
 pdfminer.six==20231228
 scikit-learn==1.5.1
 scipy==1.14.0
 seaborn==0.13.0
 dotenv==0.9.9
-httpx==0.27.0
+httpx==0.28.1
 pymongo==4.3.3
 
 fastapi==0.115.6
@@ -22,3 +22,4 @@ pillow==10.4.0
 itsdangerous==2.2.0
 h2==4.1.0
 clickhouse-connect==0.8.17
+google-genai==1.57.0

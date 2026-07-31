@@ -158,21 +158,21 @@ async def get_httpx_client(base_url: str):
         http2=True
     )
 
-@app.on_event("startup")
-async def startup_event():
-    print("[162] Server startup: Initializing HTML clients")
-
-    # Fetch URLs from environment variables
-    prime_dashboard_url = os.getenv("PRIME_DASHBOARD_URL", "http://fastapi-app:7861")
-
-    app.state.prime_dashboard_client = await get_httpx_client(prime_dashboard_url)
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    print("[172] Server shutdown: Closing HTTP clients")
-    await app.state.prime_dashboard_saikyo_client.aclose()
-    await app.state.prime_dashboard_dcat_client.aclose()
+# @app.on_event("startup")
+# async def startup_event():
+#     print("[162] Server startup: Initializing HTML clients")
+# 
+#     # Fetch URLs from environment variables
+#     prime_dashboard_url = os.getenv("PRIME_DASHBOARD_URL", "http://fastapi-app:7861")
+# 
+#     app.state.prime_dashboard_client = await get_httpx_client(prime_dashboard_url)
+# 
+# 
+# @app.on_event("shutdown")
+# async def shutdown_event():
+#     print("[172] Server shutdown: Closing HTTP clients")
+#     await app.state.prime_dashboard_saikyo_client.aclose()
+#     await app.state.prime_dashboard_dcat_client.aclose()
 
 
 # Log incoming requests
@@ -215,9 +215,9 @@ async def proxy_request(client, request: Request, path: str):
     print(f"[214] Max retries reached for proxying request to {url}")
     raise HTTPException(status_code=502, detail="Max retries reached")
 
-@app.api_route("/prime_dashboard/{path:path}") # legacy path
-async def proxy_to_prime_dashboard(request: Request, path: str, user: dict = Depends(get_current_user)):
-    return await proxy_request(app.state.prime_dashboard_client, request, path)
+# @app.api_route("/prime_dashboard/ui/") # legacy path
+# async def proxy_to_prime_dashboard(request: Request, path: str = "/ui/", user: dict = Depends(get_current_user)):
+#     return await proxy_request(app.state.prime_dashboard_client, request, "/ui/")
 
 ####### LTI #############################################################################
 
@@ -266,12 +266,12 @@ async def lti_launch(request: Request):
 
 @router.get("/go-to-gradio")
 async def go_to_gradio():
-    return RedirectResponse(url="/prime_dashboard/ui/")
+    return RedirectResponse(url="/prime_dashboard/ui")
 
 app.include_router(router, prefix="/prime_dashboard")
 
 # Gradio Mount（/ui以下はGradio専用にする！）
-mount_gradio_app(app, demo, path="/ui/", root_path="/ui")
+mount_gradio_app(app, demo, path="/prime_dashboard/ui", root_path="/prime_dashboard/ui")
 
 if __name__ == '__main__':
-    uvicorn.run(app, root_path="/prime_dashboard")
+    uvicorn.run(app, root_path=f"/prime_dashboard")
