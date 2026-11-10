@@ -3,14 +3,13 @@ version: "3.8"
 services:
   mongo:
     image: mongo:latest
-    container_name: mongo
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
     # volumes:
     #   - mongo_data:/data/db
     ports:
-      - "27017:27017"
+      - "27018:27017"
     networks:
       - backend
     restart: on-failure
@@ -18,9 +17,8 @@ services:
   fastapi-app:
     build:
       context: .
-    container_name: fastapi-app
     ports:
-      - "13861:7860"
+      - "13861:7861"
     env_file:
       - .env
     depends_on:

@@ -1,22 +1,21 @@
 gradio==5.23.1
 gradio_client==1.8.0
 numpy==1.26.4
-openai==2.15.0
-pdfminer.six==20231228
+pandas==2.2.3
 scikit-learn==1.5.1
 scipy==1.14.0
 seaborn==0.13.0
-dotenv==0.9.9
+openai==2.15.0
+pdfminer.six==20231228
+python-dotenv==1.0.1
 httpx==0.28.1
 pymongo==4.3.3
-
 fastapi==0.115.6
 requests==2.32.3
 pylti==0.7.0
 httpx-ws==0.7.2
 uvicorn[standard]==0.34.0
-jinja2 ==3.1.5
-httpx-ws==0.7.2
+jinja2==3.1.5
 starlette==0.41.3
 pillow==10.4.0
 itsdangerous==2.2.0
